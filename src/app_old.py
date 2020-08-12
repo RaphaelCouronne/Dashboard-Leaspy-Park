@@ -2,6 +2,27 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+
+
+#%% Dash
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
+
+app.css.append_css({
+    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
+})
+
+styles = {
+    'pre': {
+        'border': 'thin lightgrey solid',
+        'overflowX': 'scroll'
+    }
+}
+
+
+
+
 import plotly.express as px
 import pandas as pd
 import os
@@ -103,24 +124,6 @@ x_legend2 = 'Average trajectory : Physiological Age' +" "*10+'Patient trajectory
 height_latent = 320
 height_w = 250
 range_w = 0.4
-
-#%% Dash
-
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
-
-app.css.append_css({
-    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
-})
-
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
 
 
 
