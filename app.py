@@ -125,7 +125,7 @@ height_latent = 320
 height_w = 250
 range_w = 0.4
 
-app.title = 'Dash Parkinson'
+app.title = 'Dashboard Parkinson'
 
 app.layout = html.Div([
 
