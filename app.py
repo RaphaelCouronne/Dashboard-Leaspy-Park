@@ -40,7 +40,7 @@ from src.leaspype import get_reparametrized_ages,append_spaceshifts_to_individua
 
 
 #%% Load Data
-path_datadashboard = os.path.join("app", "data")
+path_datadashboard = "data/"
 leaspy = Leaspy.load(os.path.join(path_datadashboard, "leaspy.json"))
 individual_parameters = IndividualParameters.load(os.path.join(path_datadashboard, "ip.csv"))
 data = Data.from_csv_file(os.path.join(path_datadashboard, "data.csv"))
