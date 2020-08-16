@@ -2,23 +2,24 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 
 
 #%% Dash
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__)#, external_stylesheets=external_stylesheets)
 server = app.server
 
-app.css.append_css({
-    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
-})
+#app.css.append_css({
+#    "external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
+#})
 
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
+#styles = {
+#    'pre': {
+#        'border': 'thin lightgrey solid',
+#        'overflowX': 'scroll'
+#    }
+#}
 
 
 
@@ -142,22 +143,45 @@ app.layout = html.Div([
             html.Div(children=[
 
                 html.Div([
-                    html.Button('Reset', id='reset-indparam', n_clicks=0),
-                    ], className="row"),
+
+
+                    html.Label("Patients Data & Model"),
+
+                dcc.Checklist(
+                    id="show_patient_trj",
+                    options=[
+                        # {'label': 'Average Trajectory', 'value': 'Avg-trj'},
+                        {'label': 'Show Patients Trajectory', 'value': 'Pa-trj'},
+                        {'label': 'Show Patients Data', 'value': 'Pa-data'},
+                        {'label': 'Show Subgroup Trajectory', 'value': 'Sub-trj'},
+                        {'label': 'Reparametrize Patients in time', 'value': 'Pa-reparam'},
+                    ],
+                    value=[]
+                ),
+
+        ], className="pretty_container"),
+
+
+
+
                 #html.Button('Random Patient Data', id='random-patient-data', n_clicks=0),
 
                 #html.Label('Show'),
-                dcc.Checklist(
-                    id="show_trj",
-                    options=[
-                        {'label': 'Average Trajectory', 'value': 'Avg-trj'},
-                        {'label': 'Patient Trajectory', 'value': 'Pa-trj'},
-                        {'label': 'Patient Data', 'value': 'Pa-data'},
-                        {'label': 'Subgroup Trajectory', 'value': 'Sub-trj'},
-                        {'label': 'Patient time reparametrization', 'value': 'Pa-reparam'},
-                    ],
-                    value=['Avg-trj']
-                ),
+
+                html.Div(id="AverageModelContainer",
+                         children=[
+
+                html.Label("Average Model"),
+
+                    dcc.Checklist(
+                        id="show_average_trj",
+                        options=[
+                            {'label': 'Show Average Trajectory', 'value': 'Avg-trj'},
+                        ],
+                        value=['Avg-trj']
+                    ),
+
+                html.Div(id="AverageModelSliders", children=[
 
                 html.Label('Onset'),
                 dcc.Slider(
@@ -238,6 +262,13 @@ app.layout = html.Div([
                     updatemode="drag",
                 ),
 
+                html.Div([
+                    html.Button('Reset', id='reset-indparam', n_clicks=0),
+                ], className="row"),
+
+                ]),
+
+                ],className="pretty_container"),
 
             ],
                 className="two columns"
@@ -250,7 +281,7 @@ app.layout = html.Div([
                     id='patient-trajectory',
                 ),
 
-                dcc.Input(id='x-legend', value=x_legend1, type='text', style={'width': 600}),
+
 
                 dcc.RangeSlider(
                     id='age-range-slider',
@@ -274,56 +305,105 @@ app.layout = html.Div([
                     options=[{"label": x, "value": x} for x in list(df_data.index.unique("ID"))],
                     value=["3001"],
                     multi=True,
-                    style={'height': '30px'}
+                    style={'height': '35px'}
                 ),
 
+                html.Div([
+                html.Label('Upload Patients'),
+                dcc.Upload(
+                        id='upload-data',
+                        children=html.Div([
+                            'Drag and Drop or ',
+                            html.A('Select Files')
+                        ]),
+                        style={
+                            'width': '100%',
+                            'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '10px',
+                            'textAlign': 'center',
+                            'margin': '12px'
+                        },
+                        multiple=False
+                    ),
+
+            ], style={"display":"none"}),
+
             ],
-                className="seven columns"
+                className="pretty_container seven columns"
             ),
 
 
 
             html.Div(children=[
 
-
-                #dcc.Graph(
-                #    id='xitau-latent-space',
-                #),
-
-                dcc.Graph(
-                    id='sources-latent-space',
-                ),
+                html.Div([
 
                 html.Div([
 
-                dcc.Dropdown(
-                    id="abs-select",
-                    options=[{"label": x_nice, "value": x} for x, x_nice in zip(ind_param_names, ind_param_nice)],
-                    value="tau",
-                    multi=False),
+                    dcc.Graph(
+                        id='sources-latent-space',
+                    ),
 
-                dcc.Dropdown(
-                    id="ord-select",
-                    options=[{"label": x_nice, "value": x} for x, x_nice in zip(ind_param_names, ind_param_nice)],
-                    value="xi",
-                    multi=False),
 
-                dcc.Dropdown(
-                    id="color-select",
-                    options=[{"label": "No color", "value": "no color"}]+
-                            [{"label": "RBD", "value": "RBD"}]+
-                            [{"label": x_nice, "value": x} for x, x_nice in zip(ind_param_names, ind_param_nice)]
+                html.Div(children=[
+                    html.Div("x", className="three columns",
+                             style={'textAlign': 'right'}),
+                    html.Div([
+                    dcc.Dropdown(
+                        id="abs-select",
+                        options=[{"label": x_nice, "value": x} for x, x_nice in zip(ind_param_names, ind_param_nice)],
+                        value="tau",
+                        multi=False),
+                    ],
+                    className="nine columns"),
+
+                ], className="row"),
+
+                html.Div(children=[
+                    html.Div("y", className="three columns",
+                             style={'textAlign': 'right'}),
+                    html.Div([
+                        dcc.Dropdown(
+                            id="ord-select",
+                            options=[{"label": x_nice, "value": x} for x, x_nice in
+                                     zip(ind_param_names, ind_param_nice)],
+                            value="xi",
+                            multi=False),
+                    ],
+                        className="nine columns"),
+
+                ], className="row"),
+
+                html.Div(children=[
+                    html.Div("Color", className="three columns",
+                             style={'textAlign': 'right'}),
+                    html.Div([
+                        dcc.Dropdown(
+                            id="color-select",
+                            options=[{"label": "No color", "value": "no color"}] +
+                                    [{"label": "RBD", "value": "RBD"}] +
+                                    [{"label": x_nice, "value": x} for x, x_nice in
+                                     zip(ind_param_names, ind_param_nice)]
                             ,
-                    value="no color",
-                    multi=False),
+                            value="no color",
+                            multi=False),
+                    ],
+                        className="nine columns"),
+
+                ], className="row"),
+
+                ], className="pretty_container"),
+
 
                     html.Div([
-                        html.Label("Subgroup Sources"),
                         dcc.Graph(
                             id='sources-heatmap',
                         ),
 
-                    ]),
+                    ],className="pretty_container"),
 
 
                     ]),
@@ -420,14 +500,22 @@ def reset_source(n_clicks):
 def reset_source(n_clicks):
     return [40,90]
 
-@app.callback(
-    Output('x-legend', 'value'),
-    [Input('show_trj', 'value')])
-def change_legend(show_trj):
-    if "Pa-reparam" not in show_trj:
-        return x_legend1
+"""
+@app.callback(Output('AverageModelSliders', 'style'),
+              [Input('show_average_trj', 'value')])
+def update_style(show_average_traj):
+    if 'Avg-trj' in show_average_traj:
+        return {'color':'black'}
     else:
-        return x_legend2
+        return {'color':'#f9f9f9'}"""
+
+
+@app.callback(Output('AverageModelSliders', 'style'),
+              [Input('show_average_trj', 'value')])
+def hide_slider(show_average_traj):
+    if 'Avg-trj' not in show_average_traj:
+        return {'display':'none'}
+
 
 
 @app.callback(
@@ -445,17 +533,26 @@ def update_heatmap(patients_select):
                     color_continuous_scale="RdYlGn", range_color=[-range_w, range_w],
                     height=height_w)
 
+    fig.update_yaxes(showticklabels=False)
+
     fig.update_layout(
-        margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor="LightSteelBlue",
-        autosize=True
+        margin=dict(l=2, r=2, t=40, b=10),
+        paper_bgcolor="#f9f9f9",
+        autosize=True,
+        #showscale=False,
+        title={
+        'text': "Patient space-shifts",
+        "x": 0.5,
+        "y": 0.95,
+        'xanchor': 'center'}
     )
     return fig
 
 @app.callback(
     Output('patient-trajectory', 'figure'),
     [Input('features-select', 'value'),
-     Input('show_trj', 'value'),
+     Input('show_average_trj', 'value'),
+     Input('show_patient_trj', 'value'),
      Input('patients-select', 'value'),
      Input('Tau-Slider', 'value'),
      Input('Xi-Slider', 'value'),
@@ -466,7 +563,9 @@ def update_heatmap(patients_select):
      Input('source5-slider', 'value'),
      Input('age-range-slider', "value"),
      ])
-def plot_main_fig(features_plot, show_trj,
+def plot_main_fig(features_plot,
+                  show_average_trj,
+                  show_patient_trj,
                patients_selected,
                Tau_value,
                Xi_value,
@@ -490,7 +589,7 @@ def plot_main_fig(features_plot, show_trj,
     timepoints = {'mean': np.linspace(age_range[0], age_range[1], 20)}
     show_legend = True
 
-    if 'Avg-trj' in show_trj:
+    if 'Avg-trj' in show_average_trj:
 
 
 
@@ -522,7 +621,7 @@ def plot_main_fig(features_plot, show_trj,
                                       ))
         show_legend = False
 
-    if 'Sub-trj' in show_trj and len(patient_IDs)>0:
+    if 'Sub-trj' in show_patient_trj and len(patient_IDs)>0:
         ip_sub = individual_parameters.subset(patient_IDs)
         ip_sub_mean_dict = {
             'xi': ip_sub.get_mean('xi'),
@@ -544,7 +643,7 @@ def plot_main_fig(features_plot, show_trj,
         show_legend = False
 
 
-    if 'Pa-trj' in show_trj:
+    if 'Pa-trj' in show_patient_trj:
     # Individual Trajectory
         for patient_ID in patient_IDs:
             pa_time = data.get_by_idx(patient_ID).timepoints
@@ -556,7 +655,7 @@ def plot_main_fig(features_plot, show_trj,
             ip = individual_parameters[patient_ID]
             patient_traj = leaspy.estimate({patient_ID: pa_timepoints}, {patient_ID: ip})[patient_ID]
 
-            if 'Pa-reparam' in show_trj:
+            if 'Pa-reparam' in show_patient_trj:
                 pa_timepoints = get_reparametrized_ages({patient_ID: pa_timepoints},
                                                                    individual_parameters,
                                                                    leaspy)[patient_ID]
@@ -572,14 +671,14 @@ def plot_main_fig(features_plot, show_trj,
                                           showlegend=show_legend))
             show_legend = False
 
-    if "Pa-data" in show_trj:
+    if "Pa-data" in show_patient_trj:
         for patient_ID in patient_IDs:
             # Patient Data
             df_patientdata = df_data.loc[patient_ID].reset_index()
 
             pa_timepoints = data.individuals[patient_ID].timepoints
 
-            if 'Pa-reparam' in show_trj:
+            if 'Pa-reparam' in show_patient_trj:
                 pa_timepoints = get_reparametrized_ages({patient_ID: pa_timepoints},
                                                                    individual_parameters,
                                                                    leaspy)[patient_ID]
@@ -596,12 +695,26 @@ def plot_main_fig(features_plot, show_trj,
                                           connectgaps=True))
             show_legend = False
 
+    x_label = ""
+    if "Pa-reparam" not in show_patient_trj:
+        x_label = x_legend1
+    else:
+        x_label = x_legend2
+
 
     fig2.update_layout(
         clickmode='event+select',
-        margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor="LightSteelBlue",
-        autosize=True
+        margin=dict(l=10, r=10, t=35, b=10),
+        paper_bgcolor="#f9f9f9",
+        autosize=True,
+        title={
+            'text': "Biomarkers progression model",
+            "x":0.5,
+            "y": 0.97,
+            'xanchor': 'center'},
+
+        xaxis_title=x_label,
+        yaxis_title="Normalized Score",
     )
 
     return fig2
@@ -639,10 +752,15 @@ def plot_latent(xlabel, ylabel, color):
         fig.update_traces(marker={ 'size': 6})
 
     fig.update_layout(
-        margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor="LightSteelBlue",
+        margin=dict(l=10, r=10, t=35, b=10),
+        paper_bgcolor="#f9f9f9",
         autosize=True,
-        clickmode='event+select'
+        clickmode='event+select',
+        title={
+            'text': "Individual parameters",
+            "x": 0.5,
+            "y": 0.95,
+            'xanchor': 'center'}
     )
 
     return fig
@@ -650,6 +768,7 @@ def plot_latent(xlabel, ylabel, color):
 @app.callback(
     Output('sources-latent-space', 'figure'),
     [Input('patients-select', 'value'),
+     Input('show_average_trj', 'value'),
      Input('abs-select', 'value'),
      Input('ord-select', 'value'),
      Input('color-select', 'value'),
@@ -662,7 +781,9 @@ def plot_latent(xlabel, ylabel, color):
      Input('source5-slider', 'value')
      ]
 )
-def update_source_selection(patients_selection, abs, ord, color, Tau_value,
+def update_source_selection(patients_selection,
+                show_average_trj,
+            abs, ord, color, Tau_value,
                Xi_value,
                Source1,
                Source2,
@@ -706,12 +827,12 @@ def update_source_selection(patients_selection, abs, ord, color, Tau_value,
                                  marker=dict(size=16, opacity=0.9),
                                  showlegend=False))
 
-
-    fig.add_trace(go.Scatter(x=[df_avg_ind[abs]], y=[df_avg_ind[ord]],
-                              mode='markers',
-                              line=dict(color="purple", width=10),
-                              marker=dict(size=16, opacity=0.6),
-                              showlegend=False))
+    if "Avg-trj" in show_average_trj:
+        fig.add_trace(go.Scatter(x=[df_avg_ind[abs]], y=[df_avg_ind[ord]],
+                                  mode='markers',
+                                  line=dict(color="purple", width=10),
+                                  marker=dict(size=16, opacity=0.6),
+                                  showlegend=False))
 
     return fig
 
