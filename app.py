@@ -156,7 +156,7 @@ app.layout = html.Div([
                         {'label': 'Show Subgroup Trajectory', 'value': 'Sub-trj'},
                         {'label': 'Reparametrize Patients in time', 'value': 'Pa-reparam'},
                     ],
-                    value=[]
+                    value=['Pa-trj', 'Pa-data']
                 ),
 
         ], className="pretty_container"),
@@ -177,6 +177,7 @@ app.layout = html.Div([
                         id="show_average_trj",
                         options=[
                             {'label': 'Show Average Trajectory', 'value': 'Avg-trj'},
+                            {'label': 'Modify Average Trajectory', 'value': 'Modify-avg-trj'},
                         ],
                         value=['Avg-trj']
                     ),
@@ -286,9 +287,9 @@ app.layout = html.Div([
                 dcc.RangeSlider(
                     id='age-range-slider',
                     min=20,
-                    max=100,
+                    max=110,
                     step=0.5,
-                    value=[50, 80]
+                    value=[30, 100]
                 ),
 
                 html.Label('Select Clinical Scores'),
@@ -303,7 +304,7 @@ app.layout = html.Div([
                 dcc.Dropdown(
                     id="patients-select",
                     options=[{"label": x, "value": x} for x in list(df_data.index.unique("ID"))],
-                    value=["3001"],
+                    value=["Synthetic_001", "Synthetic_002"],
                     multi=True,
                     style={'height': '35px'}
                 ),
@@ -431,9 +432,19 @@ app.layout = html.Div([
 
             html.Div([
 
+                dcc.Checklist(
+                    id="input_patient_init",
+                    options=[
+                        # {'label': 'Average Trajectory', 'value': 'Avg-trj'},
+                        {'label': 'Synthetic_001', 'value': 'Synthetic_001'},
+                        {'label': 'Synthetic_002', 'value': 'Synthetic_002'},
+                    ],
+                    value=['Synthetic_001', 'Synthetic_002']
+                ),
+
 
             ],
-                className="seven columns"
+                className="seven columns", style={"display":"none"}
             ),
 
 
@@ -498,7 +509,7 @@ def reset_source(n_clicks):
     Output('age-range-slider', 'value'),
     [Input('reset-indparam', 'n_clicks')])
 def reset_source(n_clicks):
-    return [40,90]
+    return [30,100]
 
 """
 @app.callback(Output('AverageModelSliders', 'style'),
@@ -513,7 +524,7 @@ def update_style(show_average_traj):
 @app.callback(Output('AverageModelSliders', 'style'),
               [Input('show_average_trj', 'value')])
 def hide_slider(show_average_traj):
-    if 'Avg-trj' not in show_average_traj:
+    if 'Modify-avg-trj' not in show_average_traj:
         return {'display':'none'}
 
 
@@ -839,18 +850,15 @@ def update_source_selection(patients_selection,
 
 @app.callback(
     Output('patients-select', 'value'),
-    [Input('sources-latent-space', 'selectedData')]
+    [Input('sources-latent-space', 'selectedData'),
+     Input('input_patient_init', 'value')]
 )
-
-
-def update_patientselect_selection(selection_sources):
-
-
+def update_patientselect_selection(selection_sources, init_patient):
     patient_sources = []
-
     if selection_sources is not None:
         patient_sources = np.array([p['customdata'] for p in selection_sources['points'] if 'customdata' in p.keys()]).reshape(-1).tolist()
-
+    else:
+        patient_sources = init_patient
     return patient_sources
 
 
